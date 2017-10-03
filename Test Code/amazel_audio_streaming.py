@@ -10,8 +10,8 @@
 # Author: Alexandre Mazel
 ###########################################################
 
-NAO_IP = "192.168.1.100" # Baymax
-#~ NAO_IP = "10.0.253.99" # Nao Alex Blue
+#Default
+NAO_IP = "192.168.1.111" # Baymax
 
 
 from optparse import OptionParser

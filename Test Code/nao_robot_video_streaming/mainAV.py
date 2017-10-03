@@ -26,21 +26,67 @@ app = Flask(__name__)
 def index():
     return render_template('index.html')
 
-def gen(camera0):
-    while True:
-        frame = camera0.get_frame()
-        yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+#def gen(camera0):
+#    while True:
+#        frame = camera0.get_frame()
+#        yield (b'--frame\r\n'
+#               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
 
-@app.route('/video_feed')
-def video_feed():
-    return Response(gen(VideoCamera(IP)),
-                    mimetype='multipart/x-mixed-replace; boundary=frame')
+# @app.route('/video_feed')
+# def video_feed():
+#     return Response(gen(VideoCamera(IP)),
+#                     mimetype='multipart/x-mixed-replace; boundary=frame')
+
+def gen(audio):
+
+    while True:
 
 @app.route('/audio_feed')
 def audio_feed():
-    return Response(gen(VideoCamera(IP)),
-                    mimetype='multipart/x-mixed-replace; boundary=frame')
+    """ Main entry point
+
+    """
+    parser = OptionParser()
+    parser.add_option("--pip",
+        help="Parent broker port. The IP address or your robot",
+        dest="pip")
+    parser.add_option("--pport",
+        help="Parent broker port. The port NAOqi is listening to",
+        dest="pport",
+        type="int")
+    parser.set_defaults(
+        pip=IP,
+        pport=5003)
+
+    (opts, args_) = parser.parse_args()
+    pip   = opts.pip
+    pport = opts.pport
+
+    # We need this broker to be able to construct
+    # NAOqi modules and subscribe to other modules
+    # The broker must stay alive until the program exists
+    myBroker = naoqi.ALBroker("myBroker",
+       "0.0.0.0",   # listen to anyone
+       0,           # find a free port and use it
+       pip,         # parent broker IP
+       pport)       # parent broker port
+
+
+    # Warning: SoundReceiver must be a global variable
+    # The name given to the constructor must be the name of the
+    # variable
+    global SoundReceiver
+    SoundReceiver = SoundReceiverModule("SoundReceiver", pip)
+    SoundReceiver.start()
+
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        print
+        print "Interrupted by user, shutting down"
+        myBroker.shutdown()
+        sys.exit(0)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True,port=5003)

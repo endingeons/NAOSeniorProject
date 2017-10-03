@@ -4,14 +4,11 @@
 # Retrieve robot audio buffer
 # Syntaxe:
 #    python scriptname --pip <ip> --pport <port>
-# 
+#
 #    --pip <ip>: specify the ip of your robot (without specification it will use the NAO_IP defined some line below
 #
 # Author: Alexandre Mazel
 ###########################################################
-
-#Default
-NAO_IP = "192.168.1.111" # Baymax
 
 
 from optparse import OptionParser
@@ -28,38 +25,6 @@ class SoundReceiverModule(naoqi.ALModule):
     """
 
     def __init__( self, strModuleName, strNaoIp ):
-        parser = OptionParser()
-        parser.add_option("--pip",
-                          help="Parent broker port. The IP address or your robot",
-                          dest="pip")
-        parser.add_option("--pport",
-                          help="Parent broker port. The port NAOqi is listening to",
-                          dest="pport",
-                          type="int")
-        parser.set_defaults(
-            pip=NAO_IP,
-            pport=9559)
-
-        (opts, args_) = parser.parse_args()
-        pip = opts.pip
-        pport = opts.pport
-
-        # We need this broker to be able to construct
-        # NAOqi modules and subscribe to other modules
-        # The broker must stay alive until the program exists
-        myBroker = naoqi.ALBroker("myBroker",
-                                  "0.0.0.0",  # listen to anyone
-                                  0,  # find a free port and use it
-                                  pip,  # parent broker IP
-                                  pport)  # parent broker port
-
-        # Warning: SoundReceiver must be a global variable
-        # The name given to the constructor must be the name of the
-        # variable
-        global SoundReceiver
-        SoundReceiver = SoundReceiverModule("SoundReceiver", pip)
-
-
         try:
             naoqi.ALModule.__init__(self, strModuleName );
             self.BIND_PYTHON( self.getName(),"callback" );
@@ -85,12 +50,12 @@ class SoundReceiverModule(naoqi.ALModule):
         self.processRemote( 4, 128, [18,0], "A"*128*4*2 ); # for local test
 
         # on romeo, here's the current order:
-        # 0: right;  1: rear;   2: left;   3: front,  
+        # 0: right;  1: rear;   2: left;   3: front,
 
     def stop( self ):
         print( "INF: SoundReceiver: stopping..." );
         audio = naoqi.ALProxy( "ALAudioDevice", self.strNaoIp, 9559 );
-        audio.unsubscribe( self.getName() );        
+        audio.unsubscribe( self.getName() );
         print( "INF: SoundReceiver: stopped!" );
         if( self.outfile != None ):
             self.outfile.close();
@@ -131,8 +96,8 @@ class SoundReceiverModule(naoqi.ALModule):
             aPeakValue = np.max( aSoundData );
             if( aPeakValue > 16000 ):
                 print( "Peak: %s" % aPeakValue );
-        if( True ):
-            bSaveAll = True;
+        if( False ):
+            bSaveAll = False; #True
             # save to file
             if( self.outfile == None ):
                 strFilenameOut = "/Users/ponsind1/Documents/test/out.raw"; # CHANGE THIS
@@ -147,16 +112,18 @@ class SoundReceiverModule(naoqi.ALModule):
             aSoundDataInterlaced.tofile( self.outfile ); # wrote the 4 channels
             aSoundData[0].tofile( self.outfile ); # wrote only one channel
             print( "aTimeStamp: %s" % aTimeStamp );
-            print( "data wrotten: " ),
+            print( "data written: " ),
             for i in range( 8 ):
                 print( "%d, " % (aSoundData[0][i]) ),
             print( "" );
             #self.stop(); # make naoqi crashes
             if( bSaveAll ):
                 for nNumChannel in range( 1, nbOfChannels ):
-                    aSoundData[nNumChannel].tofile( self.aOutfile[nNumChannel-1] ); 
+                    aSoundData[nNumChannel].tofile( self.aOutfile[nNumChannel-1] );
+        if (True):
+            #Save to file with return from buffer
 
-
+            return
     # processRemote - end
 
 
@@ -164,23 +131,3 @@ class SoundReceiverModule(naoqi.ALModule):
         return "0.6";
 
 # SoundReceiver - end
-
-
-def main():
-
-
-    SoundReceiver.start()
-
-    try:
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
-        print
-        print "Interrupted by user, shutting down"
-        myBroker.shutdown()
-        sys.exit(0)
-
-
-
-if __name__ == "__main__":
-    main()

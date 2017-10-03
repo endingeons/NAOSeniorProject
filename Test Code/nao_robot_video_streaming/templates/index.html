@@ -4,7 +4,15 @@
   </head>
   <body>
     <h1>NAO Senior Project</h1>
-    <img id="bg" src="{{ url_for('video_feed') }}">
-    <img id="bg" src="{{ url_for('video_feed') }}">
+
+  <audio controls>
+  <source src= "{{ url_for('audio_feed') }}" type="audio/mpeg">
+  <source src= "{{ url_for('audio_feed') }}" type="audio/ogg">
+  </audio>
+<!--
+    http://audio-ogg.ibiblio.org:8000/wcpe.ogg
+    http://audio-mp3.ibiblio.org:8000/wcpe.mp3 -->
+    <!--<img id="bg" src="{{ url_for('video_feed') }}">
+    <img id="bg" src="{{ url_for('video_feed') }}">-->
   </body>
 </html>
