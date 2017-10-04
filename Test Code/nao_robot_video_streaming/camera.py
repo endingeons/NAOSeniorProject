@@ -1,11 +1,12 @@
 import cv2
 from naoqi import ALProxy
 import vision_definitions
-
 from PIL import Image
 import StringIO
+
+
 class VideoCamera(object):
-    def __init__(self, ip):
+    def __init__(self, ip, res):
         # Using OpenCV to capture from device 0. If you have trouble capturing
         # from a webcam, comment the line below out and use a video file
         # instead.
@@ -20,13 +21,25 @@ class VideoCamera(object):
         ####
         # Register a Generic Video Module
 
-        resolution = vision_definitions.kQVGA  # 320 * 240
+        if res == '0':
+            resolution = vision_definitions.kQQVGA  # 160 * 120
+        elif res == '1':
+            resolution = vision_definitions.kQVGA  # 320 * 240
+        elif res == '2':
+            resolution = vision_definitions.kVGA  # 640 * 480
+        elif res == '3':
+            resolution = vision_definitions.k4VGA  # 1280 * 960
+        elif res == '7':
+            resolution = vision_definitions.kQQQVGA  # 80 * 60
+        elif res == '8':
+            resolution = vision_definitions.kQQQQVGA  # 40 * 30
+        else:
+            resolution = vision_definitions.kQQQVGA
+
         colorSpace = vision_definitions.kRGBColorSpace
         fps = 30
 
         self.nameId = self.camProxy.subscribe("python_GVM", resolution, colorSpace, fps)
-
-
 
     def __del__(self):
         #self.video.release()
@@ -45,7 +58,7 @@ class VideoCamera(object):
         imageHeight = naoImage[1]
         array = naoImage[6]
 
-  # Create a PIL Image from our pixel array.
+        # Create a PIL Image from our pixel array.
         im = Image.fromstring("RGB", (imageWidth, imageHeight), array)
         buf= StringIO.StringIO()
         im.save(buf, format= 'PNG')

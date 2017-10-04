@@ -17,7 +17,15 @@ from flask import Flask, render_template, Response
 from camera import VideoCamera
 import sys
 
-IP = sys.argv[1]
+try:
+    IP = sys.argv[1]
+except:
+    IP = "192.168.1.149" #typical Baymax IP
+
+try:
+    res = sys.argv[2]
+except:
+    res = 1
 
 app = Flask(__name__)
 
@@ -33,7 +41,7 @@ def gen(camera):
 
 @app.route('/video_feed')
 def video_feed():
-    return Response(gen(VideoCamera(IP)),
+    return Response(gen(VideoCamera(IP, res)),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 if __name__ == '__main__':
