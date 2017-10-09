@@ -14,9 +14,11 @@
 # 2. Run "python main.py".
 # 3. Navigate the browser to the local webpage.
 from flask import Flask, render_template, Response
-from camera0 import VideoCamera
 from audio_streaming_NAO import SoundReceiverModule
 import sys
+import naoqi
+import pyaudio
+from optparse import OptionParser
 
 IP = sys.argv[1]
 
@@ -24,6 +26,9 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
+    """ Main entry point
+
+    """
     return render_template('index.html')
 
 #def gen(camera0):
@@ -37,15 +42,14 @@ def index():
 #     return Response(gen(VideoCamera(IP)),
 #                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
-def gen(audio):
-
+def gen(SoundReceiver):
+    SoundReceiver.start()
     while True:
+        #yield("/Users/cantonc1/Documents/test/out.ogg")
+        yield("/Users/cantonc1/Documents/test/ACDC_-_Back_In_Black-sample.ogg")
 
 @app.route('/audio_feed')
 def audio_feed():
-    """ Main entry point
-
-    """
     parser = OptionParser()
     parser.add_option("--pip",
         help="Parent broker port. The IP address or your robot",
@@ -59,7 +63,7 @@ def audio_feed():
         pport=5003)
 
     (opts, args_) = parser.parse_args()
-    pip   = opts.pip
+    pip = opts.pip
     pport = opts.pport
 
     # We need this broker to be able to construct
@@ -77,11 +81,20 @@ def audio_feed():
     # variable
     global SoundReceiver
     SoundReceiver = SoundReceiverModule("SoundReceiver", pip)
-    SoundReceiver.start()
+    audio = pyaudio.PyAudio()
+    stream = audio.open(
+        format=pyaudio.paInt16,
+        channels=AUDIO['channels'], rate=AUDIO['rate'],
+        input=True, output=True, stream_callback=on_audio_ready) # TODO: what stream_callback?
+
+    #SoundReceiver.start()
 
     try:
-        while True:
-            time.sleep(1)
+        #return Response(gen(SoundReceiverModule("SoundReceiver", pip)),
+        #                mimetype='audio/ogg')
+        SoundReceiver.start()
+        SoundReceiver.aSoundDataInterlaced[0]
+
     except KeyboardInterrupt:
         print
         print "Interrupted by user, shutting down"
