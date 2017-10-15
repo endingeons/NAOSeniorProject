@@ -5,24 +5,6 @@
     <title>NAO Senior Project</title>
     <link rel="stylesheet" type="text/css" href="style/style.css">
     <link href="https://cdn.mdn.mozilla.net/static/build/styles/samples.37902ba3b7fe.css" rel="stylesheet" type="text/css">
-    <style type="text/css">
-      .garden{
-      position: relative;
-      width: 200px;
-      height: 200px;
-      border: 5px solid #CCC;
-      border-radius: 10px;
-      }
-      .ball{
-      position: absolute;
-      top: 90px;
-      left: 90px;
-      width: 20px;
-      height: 20px;
-      background: green;
-      border-radius: 100%;
-      }
-    </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   </head>
   <body>
@@ -31,19 +13,11 @@
       <img id="bg" style = "width: 49vw; height: auto;" src="{{ url_for('video_feed') }}">
     </div>
 
-    <div class="garden">
-      <div class="ball"></div>
-    </div>
-
     <pre class="output"></pre>
 
     <script type="text/javascript">
-      var ball = document.querySelector('.ball');
-      var garden = document.querySelector('.garden');
       var output = document.querySelector('.output');
-
-      var maxX = garden.clientWidth - ball.clientWidth;
-      var maxY = garden.clientHeight - ball.clientHeight;
+      var y_init = 0;
       var z_init = 0;
 
       function handleOrientation(event){
@@ -53,22 +27,24 @@
 
         if (z_init == 0)
         {
-          z_init = z; // we will probably need to adjust z so the start is 0 (NAO start position is 0)
+          z_init = z; // we will need to adjust z so the start is 0 (NAO start position is 0)
         }
 
-        z = z - z_init;
-
-        if (z < -180)
+        if (z > z_init)
         {
-          z = -z - 360;
+          z = z - z_init;
         }
-        else
+        else if (z < z_init)
         {
-          z = -z;
+          z = 360 - z_init + z;
+        }
+        if (z > 180)
+        {
+          z = z - 360;
         }
 
-        // adjusting to make the y axis 0 when the phone is on its side, negative
-        // when down, and positive when up to match the NAO
+        // adjusting to make the y axis 0 when the phone is in the normal start position,
+        // negative when down, and positive when up to match the NAO
         if (y > 0)
         {
           y = y - 90;
@@ -78,24 +54,32 @@
           y = y + 90;
         }
 
-        // To make computation easier we shift the range of
-        // x and y to [0,180]
-        //x += 90;
-        //y += 90;
+        if (y_init == 0)
+        {
+          y_init = y;
+        }
 
+        if ((y_init < 0 && y > 0) || (y_init > 0 && y < 0))
+        {
+          if (z < 0)
+          {
+            z = z + 180;
+          }
+          else if (z > 0)
+          {
+            z = z - 180;
+          }
+        }
+
+        //we can't really use x since the NAOs only have two degrees of freedom for their heads
         //output.innerHTML  = "x: " + Math.round(x) + "\n";
         output.innerHTML = "y: " + Math.round(y) + "\n";
         output.innerHTML += "z: " + Math.round(z) + "\n";
-
-        // 10 is half the size of the ball
-        // It center the positioning point to the center of the ballw
-        //ball.style.top  = (maxX*x/180 - 10) + "px";
-        ball.style.left = (maxY*y/180 - 10) + "px";
+        output.innerHTML += "init y: " + Math.round(y_init) + "\n";
+        output.innerHTML += "init z: " + Math.round(z_init) + "\n";
       }
 
       window.addEventListener('deviceorientation', handleOrientation);
-
     </script>
-
   </body>
 </html>
