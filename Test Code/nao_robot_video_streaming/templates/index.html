@@ -24,10 +24,6 @@
       }
     </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script>
-      var dan = "dan";
-      var thiss = 1;
-    </script>
   </head>
   <body>
     <div style="display: inline-block">
@@ -48,27 +44,52 @@
 
       var maxX = garden.clientWidth - ball.clientWidth;
       var maxY = garden.clientHeight - ball.clientHeight;
+      var z_init = 0;
 
       function handleOrientation(event){
-        var x = event.beta;  // In degree in the range [-180,180]
-        var y = event.gamma; // In degree in the range [-90,90]
+        //var x = event.beta;  // x axis motion in degrees in the range [-180,180], front to back motion?
+        var y = event.gamma; // y axis motion in degrees in the range [-90,90], left to right motion?
+        var z = event.alpha; // z axis motion in degrees in the range [0,360], up to down motion?
 
-        output.innerHTML  = "beta : " + x + "\n";
-        output.innerHTML += "gamma: " + y + "\n";
+        if (z_init == 0)
+        {
+          z_init = z; // we will probably need to adjust z so the start is 0 (NAO start position is 0)
+        }
 
-        // Because we don't want to have the device upside down
-        // We constrain the x value to the range [-90,90]
-        if (x >  90) { x =  90};
-        if (x < -90) { x = -90};
+        z = z - z_init;
+
+        if (z < -180)
+        {
+          z = -z - 360;
+        }
+        else
+        {
+          z = -z;
+        }
+
+        // adjusting to make the y axis 0 when the phone is on its side, negative
+        // when down, and positive when up to match the NAO
+        if (y > 0)
+        {
+          y = y - 90;
+        }
+        else if (y < 0)
+        {
+          y = y + 90;
+        }
 
         // To make computation easier we shift the range of
         // x and y to [0,180]
-        x += 90;
-        y += 90;
+        //x += 90;
+        //y += 90;
+
+        //output.innerHTML  = "x: " + Math.round(x) + "\n";
+        output.innerHTML = "y: " + Math.round(y) + "\n";
+        output.innerHTML += "z: " + Math.round(z) + "\n";
 
         // 10 is half the size of the ball
-        // It center the positioning point to the center of the ball
-        ball.style.top  = (maxX*x/180 - 10) + "px";
+        // It center the positioning point to the center of the ballw
+        //ball.style.top  = (maxX*x/180 - 10) + "px";
         ball.style.left = (maxY*y/180 - 10) + "px";
       }
 
