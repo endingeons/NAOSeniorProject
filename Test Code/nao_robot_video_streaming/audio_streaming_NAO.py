@@ -1,3 +1,6 @@
+from __future__ import print_function # In python 2.7
+import sys
+
 # -*- coding: utf-8 -*-
 
 ###########################################################
@@ -12,6 +15,7 @@
 
 
 from optparse import OptionParser
+
 import naoqi
 import numpy as np
 import soundfile as sf
@@ -19,19 +23,21 @@ import time
 import sys
 
 
-class SoundReceiverModule(naoqi.ALModule):
+class SoundReceiverModule(object):
     """
     Use this object to get call back from the ALMemory of the naoqi world.
     Your callback needs to be a method with two parameter (variable name, value).
     """
 
-    def __init__( self, strModuleName, strNaoIp ):
+    def __init__( self, strNaoIp, pport ):
         try:
-            naoqi.ALModule.__init__(self, strModuleName );
-            self.BIND_PYTHON( self.getName(),"callback" );
+            # self.BIND_PYTHON( self.getName(),"callback" )
             self.strNaoIp = strNaoIp
-            self.outfile = None;
+            self.pport = pport
+            self.outfile = None
             self.aOutfile = [None]*(4-1) # ASSUME max nbr channels = 4
+            self.audioProxy = naoqi.ALProxy("ALAudioDevice", self.strNaoIp, self.pport);
+
         except BaseException, err:
             print( "ERR: abcdk.naoqitools.SoundReceiverModule: loading error: %s" % str(err) );
 
@@ -41,69 +47,35 @@ class SoundReceiverModule(naoqi.ALModule):
         self.stop();
 
     def start( self ):
-        audio = naoqi.ALProxy( "ALAudioDevice", self.strNaoIp, 9559 );
-        nNbrChannelFlag = 0 # ALL_Channels: 0,  AL::LEFTCHANNEL: 1, AL::RIGHTCHANNEL: 2; AL::FRONTCHANNEL: 3  or AL::REARCHANNEL: 4.
-        nDeinterleave = 0
-        nSampleRate = 48000
-        audio.setClientPreferences( self.getName(),  nSampleRate, nNbrChannelFlag, nDeinterleave ); # setting same as default generate a bug !?!
-        audio.subscribe( self.getName() )
-        print( "INF: SoundReceiver: started!" )
-        #self.processRemote( 4, 128, [18,0], "A"*128*4*2 ); # for local test
-
-        self.process(4, 128, [18,0], "A"*128*4*2)
-
+        nNbrChannelFlag = 0; # ALL_Channels: 0,  AL::LEFTCHANNEL: 1, AL::RIGHTCHANNEL: 2; AL::FRONTCHANNEL: 3  or AL::REARCHANNEL: 4.
+        nDeinterleave = 0;
+        nSampleRate = 48000; #or sampling rate could be 16000
+        self.audioProxy.setClientPreferences( self.getName(),  nSampleRate, nNbrChannelFlag, nDeinterleave ); # setting same as default generate a bug !?!
+        self.audioProxy.subscribe( self.getName() );
+        print( "INF: SoundReceiver: started!" );
+        self.processRemote( 4, 128, [18,0], "A"*128*4*2 ); # for local test
 
         # on romeo, here's the current order:
         # 0: right;  1: rear;   2: left;   3: front,
 
     def stop( self ):
         print( "INF: SoundReceiver: stopping..." );
-        audio = naoqi.ALProxy( "ALAudioDevice", self.strNaoIp, 9559 );
-        audio.unsubscribe( self.getName() );
+        self.audioProxy = naoqi.ALProxy( "ALAudioDevice", self.strNaoIp, self.pport );
+        self.audioProxy.unsubscribe( self.getName() );
         print( "INF: SoundReceiver: stopped!" );
         if( self.outfile != None ):
             self.outfile.close();
-
-    #Process will regularly be called after subscribing to the ALAudioDevice proxy
-    def process(self, nbOfChannels, nbrOfSamplesByChannel, buffer, aTimeStamp):
-        nSampleRate = 48000
-        print("process!");
-        print("processRemote: %s, %s, %s, lendata: %s, data0: %s (0x%x), data1: %s (0x%x)" % (
-        nbOfChannels, nbrOfSamplesByChannel, aTimeStamp, len(buffer), buffer[0], ord(buffer[0]), buffer[1],
-        ord(buffer[1])));
-        #print("raw data: "),
-        #for i in range(8):
-        #    print("%s (0x%x), " % (buffer[i], ord(buffer[i]))),
-        #print("");
-
-        aSoundDataInterlaced = np.fromstring(str(buffer), dtype=np.int16)
-        print("len data: %s " % len(aSoundDataInterlaced))
-        print("data interlaced: "),
-        for i in range(8):
-            print("%d, " % (aSoundDataInterlaced[i])),
-        print("");
-        aSoundData = np.reshape(aSoundDataInterlaced, (nbOfChannels, nbrOfSamplesByChannel), 'F');
-        print("len data: %s " % len(aSoundData))
-        print("len data 0: %s " % len(aSoundData[0]))
-
-        if (self.outfile == None):
-            strFilenameOut = "/Users/cantonc1/Documents/test/out.ogg" # CHANGE THIS
-            print("INF: Writing sound to '%s'" % strFilenameOut);
-            self.outfile = open(strFilenameOut, "wb")
-        #sf.write(strFilenameOut, aSoundData[0], nSampleRate)
-        #How to close files? Is that necessary?
-
 
     def processRemote( self, nbOfChannels, nbrOfSamplesByChannel, aTimeStamp, buffer ):
         """
         This is THE method that receives all the sound buffers from the "ALAudioDevice" module
         """
-        print( "process!" );
+        print( "process!" , file=sys.stderr)
         print( "processRemote: %s, %s, %s, lendata: %s, data0: %s (0x%x), data1: %s (0x%x)" % (nbOfChannels, nbrOfSamplesByChannel, aTimeStamp, len(buffer), buffer[0],ord(buffer[0]),buffer[1],ord(buffer[1])) );
         print( "raw data: " ),
         for i in range( 8 ):
-            print( "%s (0x%x), " % (buffer[i],ord(buffer[i])) ),
-        print( "" );
+            print( "%s (0x%x), " % (buffer[i],ord(buffer[i])) , file=sys.stderr),
+        print( "" , file=sys.stderr)
 
         aSoundDataInterlaced = np.fromstring( str(buffer), dtype=np.int16 );
         print( "len data: %s " % len( aSoundDataInterlaced ) );
@@ -123,7 +95,7 @@ class SoundReceiverModule(naoqi.ALModule):
             nBlockSize = nbrOfSamplesByChannel;
             signal = aSoundData[0] * np.hanning( nBlockSize );
             aFft = ( np.fft.rfft(signal) / nBlockSize );
-            print aFft;
+            print ("%s",aFft);
         if( False ):
             # compute peak
             aPeakValue = np.max( aSoundData );
