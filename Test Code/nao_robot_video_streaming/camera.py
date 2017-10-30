@@ -6,7 +6,7 @@ import StringIO
 
 
 class VideoCamera(object):
-    def __init__(self, ip, res):
+    def __init__(self, ip, res, fps=30):
         # Using OpenCV to capture from device 0. If you have trouble capturing
         # from a webcam, comment the line below out and use a video file
         # instead.
@@ -37,9 +37,8 @@ class VideoCamera(object):
             resolution = vision_definitions.kQQQVGA
 
         colorSpace = vision_definitions.kRGBColorSpace
-        fps = 30
 
-        self.nameId = self.camProxy.subscribe("python_GVM", resolution, colorSpace, fps)
+        self.nameId = self.camProxy.subscribe("python_GVM", resolution, colorSpace, int(fps))
 
     def __del__(self):
         #self.video.release()
