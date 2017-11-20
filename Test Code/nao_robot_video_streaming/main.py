@@ -16,7 +16,7 @@
 from flask import Flask, render_template, Response, request, jsonify
 from camera import VideoCamera
 import sys
-import maybe
+import gyro
 import threading
 
 try:
@@ -43,7 +43,7 @@ def index():
     if request.method == "POST":
         print('post')
         data = request.form['gyroZ']
-        maybe.yes(data,IP)
+        gyro.moveHead(data,IP)
         return data
     else:
         return render_template('index.html')
@@ -53,7 +53,7 @@ def post():
     try:
         print('yes')
         data = request.form['gyroZ']
-        maybe.yes(data, IP)
+        gyro.moveHead(data, IP)
     except:
         print('no')
         data = 0

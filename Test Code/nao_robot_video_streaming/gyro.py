@@ -1,7 +1,7 @@
 from naoqi import ALProxy
 import almath
 
-def yes(arg, ip):
+def moveHead(arg, ip):
     print(arg)
     argRad = int(arg) * 3.14 / 180
     moProx = ALProxy("ALMotion", ip, 9559)
