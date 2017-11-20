@@ -18,11 +18,13 @@ from camera import VideoCamera
 import sys
 import gyro
 import threading
+import speech_recognition as sr
+from naoqi import ALProxy
 
 try:
     IP = sys.argv[1]
 except:
-    IP = "192.168.1.149" #typical Baymax IP
+    IP = "192.168.1.100" #typical Baymax IP
 
 try:
     res = sys.argv[2]
@@ -35,6 +37,8 @@ except:
     fps = 30
 
 stringy = ''
+
+r = sr.Recognizer()
 
 app = Flask(__name__)
 
@@ -65,6 +69,18 @@ def gen(camera):
         frame = camera.get_frame()
         stringy = b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n'
         #yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+
+@app.route('/speech')
+def tts():
+    tts = ALProxy("ALTextToSpeech", IP, 9559)
+    with sr.Microphone() as source:
+        print('Say Something!')
+        audio = r.listen(source)
+        print('Done!')
+
+    input = r.recognize_google(audio)
+    print(input)
+    tts.say(str(input))
 
 @app.route('/video_feed')
 def video_feed():

@@ -21,7 +21,7 @@
     </form>
 
     <!--button for TTS python script-->
-    <button type="button" onClick="loadTTS()">I want to speak!</button>
+    <a href="{{ url_for('tts') }}">I want to speak!</a>
 
     <script type="text/javascript">
       var output = document.querySelector('.output');
@@ -96,19 +96,6 @@
           data: $('form').serialize(),
           type: 'POST',
           async: true
-        });
-      }
-
-      //function to call TTS script
-      function loadTTS(){
-        $.ajax({
-          url: "speechTest.py",
-          success: function(response){
-            console.log("hi");
-          },
-          error: function(response){
-            console.error(response)
-          }
         });
       }
 
