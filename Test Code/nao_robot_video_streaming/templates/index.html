@@ -3,17 +3,25 @@
 <html>
   <head>
     <title>NAO Senior Project</title>
-    <link rel="stylesheet" type="text/css" href="style/style.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('index', filename='style/style.css')}}">
     <link href="https://cdn.mdn.mozilla.net/static/build/styles/samples.37902ba3b7fe.css" rel="stylesheet" type="text/css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   </head>
   <body>
-    <div style="display: inline-block">
+    <div style="display: inline-block"> <!--streaming video-->
       <img id="bg" style = "width: 49vw; height: auto;" src="{{ url_for('video_feed') }}">
       <img id="bg" style = "width: 49vw; height: auto;" src="{{ url_for('video_feed') }}">
     </div>
 
     <pre class="output"></pre>
+
+    <!--form for gyro values-->
+    <form id="myform" action="/" method="post">
+      <input type ="hidden" name="gyroZ" id="gyroZ"/>
+    </form>
+
+    <!--button for TTS python script-->
+    <button type="button" onClick="loadTTS()">I want to speak!</button>
 
     <script type="text/javascript">
       var output = document.querySelector('.output');
@@ -24,6 +32,7 @@
         //var x = event.beta;  // x axis motion in degrees in the range [-180,180], front to back motion?
         var y = event.gamma; // y axis motion in degrees in the range [-90,90], left to right motion?
         var z = event.alpha; // z axis motion in degrees in the range [0,360], up to down motion?
+
 
         if (z_init == 0)
         {
@@ -77,9 +86,35 @@
         output.innerHTML += "z: " + Math.round(z) + "\n";
         output.innerHTML += "init y: " + Math.round(y_init) + "\n";
         output.innerHTML += "init z: " + Math.round(z_init) + "\n";
+
+        document.getElementById("gyroZ").value = Math.round(z);
+      }
+
+      function repeat(){
+        $.ajax({
+          url: '/',
+          data: $('form').serialize(),
+          type: 'POST',
+          async: true
+        });
+      }
+
+      //function to call TTS script
+      function loadTTS(){
+        $.ajax({
+          url: "speechTest.py",
+          success: function(response){
+            console.log("hi");
+          },
+          error: function(response){
+            console.error(response)
+          }
+        });
       }
 
       window.addEventListener('deviceorientation', handleOrientation);
+
+      setInterval(repeat,2000);
     </script>
   </body>
 </html>

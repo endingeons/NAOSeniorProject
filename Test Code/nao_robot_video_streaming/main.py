@@ -13,9 +13,11 @@
 # 1. Install Python dependencies: cv2, flask. (wish that pip install works like a charm)
 # 2. Run "python main.py".
 # 3. Navigate the browser to the local webpage.
-from flask import Flask, render_template, Response
+from flask import Flask, render_template, Response, request, jsonify
 from camera import VideoCamera
 import sys
+import maybe
+import threading
 
 try:
     IP = sys.argv[1]
@@ -32,20 +34,44 @@ try:
 except:
     fps = 30
 
+stringy = ''
+
 app = Flask(__name__)
 
-@app.route('/')
+@app.route('/', methods = ['GET', 'POST'])
 def index():
-    return render_template('index.html')
+    if request.method == "POST":
+        print('post')
+        data = request.form['gyroZ']
+        maybe.yes(data,IP)
+        return data
+    else:
+        return render_template('index.html')
+
+@app.route('/post', methods = ['POST'])
+def post():
+    try:
+        print('yes')
+        data = request.form['gyroZ']
+        maybe.yes(data, IP)
+    except:
+        print('no')
+        data = 0
+    return data#render_template('index.html')
 
 def gen(camera):
     while True:
+        global stringy
         frame = camera.get_frame()
-        yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+        stringy = b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n'
+        #yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
 
 @app.route('/video_feed')
 def video_feed():
-    return Response(gen(VideoCamera(IP, res, fps)), mimetype='multipart/x-mixed-replace; boundary=frame')
+    t = threading.Thread(target=gen, args=[VideoCamera(IP, res, fps)])
+    t.start()
+    return Response(stringy, mimetype='multipart/x-mixed-replace; boundary=frame')
+    #return Response(gen(VideoCamera(IP, res, fps)), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True,port=5003)

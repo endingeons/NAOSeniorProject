@@ -52,7 +52,7 @@ class VideoCamera(object):
         # video stream.
         #ret, jpeg = cv2.imencode('.jpg', image)
 
-         # Get the image size and pixel array.
+        # Get the image size and pixel array.
         imageWidth = naoImage[0]
         imageHeight = naoImage[1]
         array = naoImage[6]
