@@ -9,8 +9,8 @@
   </head>
   <body>
     <div style="display: inline-block"> <!--streaming video-->
-      <img id="bg" style = "width: 49vw; height: auto;" src="{{ url_for('video_feed') }}">
-      <img id="bg" style = "width: 49vw; height: auto;" src="{{ url_for('video_feed') }}">
+      <!--<img id="bg" style = "width: 49vw; height: auto;" src="{{ url_for('video_feed') }}">-->
+      <!--<img id="bg" style = "width: 49vw; height: auto;" src="{{ url_for('video_feed') }}">-->
     </div>
 
     <pre class="output"></pre>
@@ -104,7 +104,7 @@
 
       window.addEventListener('deviceorientation', handleOrientation);
 
-      setInterval(repeat,1000);
+      setInterval(repeat,750);
     </script>
   </body>
 </html>

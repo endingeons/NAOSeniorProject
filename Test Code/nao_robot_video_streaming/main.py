@@ -73,7 +73,7 @@ def tts():
 @app.route('/video_feed')
 def video_feed():
     q = Queue.Queue()
-    t = threading.Thread(target=gen, args=[VideoCamera(IP, res, fps),q, h])
+    t = threading.Thread(target=gen, args=[VideoCamera(IP, res, fps),q])
     t.start()
     t.join()
     return Response(q.get(), mimetype='multipart/x-mixed-replace; boundary=frame')
