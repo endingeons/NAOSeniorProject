@@ -16,8 +16,12 @@
     <pre class="output"></pre>
 
     <!--form for gyro values-->
-    <form id="myform" action="/" method="post">
+    <form id="myform1" action="/" method="post">
       <input type ="hidden" name="gyroZ" id="gyroZ"/>
+    </form>
+
+    <form id="myform2" action="/" method="post">
+      <input type ="hidden" name="gyroY" id="gyroY"/>
     </form>
 
     <!--button for TTS python script-->
@@ -29,9 +33,8 @@
       var z_init = 0;
 
       function handleOrientation(event){
-        //var x = event.beta;  // x axis motion in degrees in the range [-180,180], front to back motion?
-        var y = event.gamma; // y axis motion in degrees in the range [-90,90], left to right motion?
-        var z = event.alpha; // z axis motion in degrees in the range [0,360], up to down motion?
+        var y = event.gamma; // y axis motion in degrees in the range [-90,90], left to right motion
+        var z = event.alpha; // z axis motion in degrees in the range [0,360], up to down motion
 
 
         if (z_init == 0)
@@ -81,13 +84,13 @@
         }
 
         //we can't really use x since the NAOs only have two degrees of freedom for their heads
-        //output.innerHTML  = "x: " + Math.round(x) + "\n";
         output.innerHTML = "y: " + Math.round(y) + "\n";
         output.innerHTML += "z: " + Math.round(z) + "\n";
         output.innerHTML += "init y: " + Math.round(y_init) + "\n";
         output.innerHTML += "init z: " + Math.round(z_init) + "\n";
 
         document.getElementById("gyroZ").value = Math.round(z);
+        document.getElementById("gyroY").value = Math.round(y);
       }
 
       function repeat(){
