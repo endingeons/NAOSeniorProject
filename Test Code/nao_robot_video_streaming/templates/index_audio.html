@@ -6,10 +6,14 @@
     <h1>NAO Senior Project</h1>
 
   <!--<source src= "{{ url_for('audio_feed') }}" type="audio/mpeg">-->
-  <audio src="http://upload.wikimedia.org/wikipedia/commons/c/c8/Example.ogg" controls="controls" preload="auto">
-    <i>Your browser does not support the audio element.</i>
-  </audio>
+  <!--<audio src="http://upload.wikimedia.org/wikipedia/commons/c/c8/Example.ogg" controls="controls" preload="auto">-->
+    <!--<i>Your browser does not support the audio element.</i>-->
+  <!--</audio>-->
 
-  <div id="button"><a href="{{ url_for('audio_feed') }}">Audio</a></div>
+    <audio autoplay>
+    <sound src="{{ url_for('audio_feed') }}" type="audio/wav">
+    <i>Your browser does not support the audio element.</i>
+    </sound>
+    </audio>
   </body>
 </html>

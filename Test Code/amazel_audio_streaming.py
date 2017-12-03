@@ -29,6 +29,7 @@ class SoundReceiverModule(naoqi.ALModule):
 
     def __init__( self, strModuleName, strNaoIp ):
         try:
+            print("Calling Module...")
             naoqi.ALModule.__init__(self, strModuleName );
             self.BIND_PYTHON( self.getName(),"callback" );
             self.strNaoIp = strNaoIp;
@@ -50,7 +51,7 @@ class SoundReceiverModule(naoqi.ALModule):
         audio.setClientPreferences( self.getName(),  nSampleRate, nNbrChannelFlag, nDeinterleave ); # setting same as default generate a bug !?!
         audio.subscribe( self.getName() );
         print( "INF: SoundReceiver: started!" );
-        self.processRemote( 4, 128, [18,0], "A"*128*4*2 ); # for local test
+        # self.processRemote( 4, 128, [18,0], "A"*128*4*2 ); # for local test
 
         # on romeo, here's the current order:
         # 0: right;  1: rear;   2: left;   3: front,  

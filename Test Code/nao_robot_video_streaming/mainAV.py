@@ -16,12 +16,16 @@
 from flask import Flask, render_template, Response
 from audio_streaming_NAO import SoundReceiverModule
 import sys
-import naoqi
 import time
-#import pyaudio
+import naoqi
+import threading
 from optparse import OptionParser
 
-IP = sys.argv[1]
+try:
+    IP = sys.argv[1]
+except:
+    IP = "192.168.1.103" #Wheatley
+
 
 app = Flask(__name__)
 
@@ -30,24 +34,29 @@ def index():
     """ Main entry point
 
     """
-    return render_template('index.html')
+    return render_template('index_audio.html')
 
-#def gen(camera0):
-#    while True:
-#        frame = camera0.get_frame()
-#        yield (b'--frame\r\n'
-#               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+def gen(pip, pport):
+    myBroker = naoqi.ALBroker("myBroker",
+                              "0.0.0.0",  # listen to anyone
+                              0,  # find a free port and use it
+                              pip,  # parent broker IP
+                              pport)  # parent broker port
 
-# @app.route('/video_feed')
-# def video_feed():
-#     return Response(gen(VideoCamera(IP)),
-#                     mimetype='multipart/x-mixed-replace; boundary=frame')
-
-def gen(SoundReceiver):
+    global SoundReceiver
+    SoundReceiver = SoundReceiverModule("SoundReceiver", pip, pport)
     SoundReceiver.start()
-    while True:
-        #yield("/Users/cantonc1/Documents/test/out.ogg")
-        yield("../ACDC_-_Back_In_Black-sample.ogg")
+    try:
+        while True:
+            time.sleep(1)
+            wav = SoundReceiver.get_audio()
+            if(wav != None):
+                yield (b'--wav\r\n'
+                   b'Content-Type: audio/x-wav\r\n\r\n' + wav + b'\r\n\r\n')
+    except KeyboardInterrupt:
+        print
+        print "Interrupted by user, shutting down"
+        sys.exit(0)
 
 @app.route('/audio_feed')
 def audio_feed():
@@ -61,8 +70,7 @@ def audio_feed():
         type="int")
     parser.set_defaults(
         pip=IP,
-        pport=5003)
-
+        pport=9559)
     (opts, args_) = parser.parse_args()
     pip = opts.pip
     pport = opts.pport
@@ -70,47 +78,30 @@ def audio_feed():
     # We need this broker to be able to construct
     # NAOqi modules and subscribe to other modules
     # The broker must stay alive until the program exists
-    # myBroker = naoqi.ALBroker("myBroker",
-    #    "0.0.0.0",   # listen to anyone
-    #    0,           # find a free port and use it
-    #    pip,         # parent broker IP
-    #    pport)       # parent broker port
-    #
-    # Warning: SoundReceiver must be a global variable
-    # The name given to the constructor must be the name of the
-    # variable
-    global SoundReceiver
-    SoundReceiver = SoundReceiverModule(pip, pport)
+    myBroker = naoqi.ALBroker("myBroker",
+                              "0.0.0.0",  # listen to anyone
+                              0,  # find a free port and use it
+                              pip,  # parent broker IP
+                              pport)  # parent broker port
+
+    # global SoundReceiver
+    # SoundReceiver = SoundReceiverModule("SoundReceiver", pip, pport)
     # SoundReceiver.start()
+    # return Response(gen(SoundReceiverModule("SoundReceiver", pip, pport)),
+    #              mimetype='multipart/x-mixed-replace; boundary=wav')
+    return Response(gen(pip, pport),
+                    mimetype='multipart/x-mixed-replace; boundary=wav')
 
-    try:
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
-        print
-        print "Interrupted by user, shutting down"
-        myBroker.shutdown()
-        sys.exit(0)
 
-    return "Hello"
-    # #audio = pyaudio.PyAudio()
-    # #stream = audio.open(
-    # #    format=pyaudio.paInt16,
-    # #    channels=AUDIO['channels'], rate=AUDIO['rate'],
-    # #    input=True, output=True, stream_callback=on_audio_ready) # TODO: what stream_callback?
-    #
-    #
     # try:
-    #     return Response(gen(SoundReceiverModule("SoundReceiver", pip)),
-    #                     mimetype='audio/ogg')
-
-    # SoundReceiver.start()
-    # #SoundReceiver.aSoundDataInterlaced[0]
-    #
-    # # except KeyboardInterrupt:
-    # #     print
-    # #     print "Interrupted by user, shutting down"
-    # #     sys.exit(0)
+    #     threading.Thread(target=SoundReceiver.get_audio).start()
+    #     while True:
+    #         time.sleep(0.0001)
+    # except KeyboardInterrupt:
+    #     print
+    #     print "Interrupted by user, shutting down"
+    #     myBroker.shutdown()
+    #     sys.exit(0)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True,port=5003)
