@@ -41,26 +41,29 @@ except:
 r = sr.Recognizer()
 
 app = Flask(__name__)
-
+q = Queue.Queue()
+vid = VideoCamera(IP, res, fps)
 
 @app.route('/', methods = ['GET', 'POST'])
 def index():
     if request.method == "POST":
-        data = request.form['gyroZ']
-        gyro.moveHead(data, IP)
+        dataZ = request.form['gyroZ']
+        dataY = request.form['gyroY']
+        gyro.moveHead(dataZ, dataY, IP)
         video_feed()
-        return data
+        return dataZ
     else:
         return render_template('index.html')
 
 
-def gen(camera,que):
+def gen(camera):
     try:
         frame = camera.get_frame()
         stringy = b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n'
-        que.put(stringy)
+        q.put(stringy)
+        print('yes')
     except:
-        pass
+        print('no')
     # yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
 
 
@@ -72,11 +75,16 @@ def tts():
 
 @app.route('/video_feed')
 def video_feed():
-    q = Queue.Queue()
-    t = threading.Thread(target=gen, args=[VideoCamera(IP, res, fps),q])
-    t.start()
-    t.join()
-    return Response(q.get(), mimetype='multipart/x-mixed-replace; boundary=frame')
+    print('this')
+    # q = Queue.Queue()
+    gen(vid)
+    # t.start()
+    # t.join()
+    print('qsize' + str(q.qsize()))
+    que = q.get()
+    #q.task_done()
+    print('qsize' + str(q.qsize()))
+    return Response(que, mimetype='multipart/x-mixed-replace; boundary=frame')
     # return Response(gen(VideoCamera(IP, res, fps)), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
