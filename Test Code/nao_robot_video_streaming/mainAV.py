@@ -46,17 +46,16 @@ def gen(pip, pport):
     global SoundReceiver
     SoundReceiver = SoundReceiverModule("SoundReceiver", pip, pport)
     SoundReceiver.start()
-    try:
-        while True:
-            time.sleep(1)
-            wav = SoundReceiver.get_audio()
-            if(wav != None):
-                yield (b'--wav\r\n'
-                   b'Content-Type: audio/x-wav\r\n\r\n' + wav + b'\r\n\r\n')
-    except KeyboardInterrupt:
-        print
-        print "Interrupted by user, shutting down"
-        sys.exit(0)
+
+    def streamwav():
+        def generate():
+            with open("signals/song.wav", "rb") as fwav:  #Need to change TODO
+                data = fwav.read(1024)
+                while data:
+                    yield data
+                    data = fwav.read(1024)
+
+        return Response(generate(), mimetype="audio/x-wav")
 
 @app.route('/audio_feed')
 def audio_feed():
@@ -84,24 +83,25 @@ def audio_feed():
                               pip,  # parent broker IP
                               pport)  # parent broker port
 
-    # global SoundReceiver
-    # SoundReceiver = SoundReceiverModule("SoundReceiver", pip, pport)
-    # SoundReceiver.start()
+    global SoundReceiver
+    SoundReceiver = SoundReceiverModule("SoundReceiver", pip, pport)
+    SoundReceiver.start()
     # return Response(gen(SoundReceiverModule("SoundReceiver", pip, pport)),
     #              mimetype='multipart/x-mixed-replace; boundary=wav')
-    return Response(gen(pip, pport),
-                    mimetype='multipart/x-mixed-replace; boundary=wav')
+    # return Response(gen(pip, pport),
+    #                 mimetype='multipart/x-mixed-replace; boundary=wav')
 
 
-    # try:
-    #     threading.Thread(target=SoundReceiver.get_audio).start()
-    #     while True:
-    #         time.sleep(0.0001)
-    # except KeyboardInterrupt:
-    #     print
-    #     print "Interrupted by user, shutting down"
-    #     myBroker.shutdown()
-    #     sys.exit(0)
+    try:
+        threading.Thread(target=SoundReceiver.get_audio).start()
+        while True:
+            time.sleep(0.00000001)
+            # SoundReceiver.get_audio()
+    except KeyboardInterrupt:
+        print
+        print "Interrupted by user, shutting down"
+        myBroker.shutdown()
+        sys.exit(0)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True,port=5003)
