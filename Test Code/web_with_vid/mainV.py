@@ -16,16 +16,17 @@
 from flask import Flask, render_template, Response, request
 from camera import VideoCamera
 import sys
-import gyro
-import speechTest
 import threading
 import speech_recognition as sr
+from naoqi import ALProxy
 import Queue
+import gyro
+import speechTest
 
 try:
     IP = sys.argv[1]
 except:
-    IP = "192.168.1.100" #typical Baymax IP
+    IP = "192.168.1.149" #typical IP
 
 try:
     res = sys.argv[2]
@@ -38,7 +39,6 @@ except:
     fps = 30
 
 r = sr.Recognizer()
-q = Queue.Queue()
 
 app = Flask(__name__)
 
@@ -49,16 +49,15 @@ def index():
         dataZ = request.form['gyroZ']
         dataY = request.form['gyroY']
         gyro.moveHead(dataZ, dataY, IP)
+        video_feed()
         return dataZ
     else:
         return render_template('index.html')
 
-
-def gen(camera,que):
+def gen(camera):
     while True:
         frame = camera.get_frame()
-        stringy = b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n'
-        que.put(stringy)
+        yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
 
 
 @app.route('/speech')
@@ -69,9 +68,7 @@ def tts():
 
 @app.route('/video_feed')
 def video_feed():
-    t = threading.Thread(target=gen, args=[VideoCamera(IP, res, fps),q])
-    t.start()
-    return Response(q.get(), mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response(gen(VideoCamera(IP, res, fps)), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 if __name__ == '__main__':
