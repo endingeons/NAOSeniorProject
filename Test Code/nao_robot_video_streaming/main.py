@@ -26,7 +26,7 @@ import Queue
 try:
     IP = sys.argv[1]
 except:
-    IP = "192.168.1.100" #typical Baymax IP
+    IP = "192.168.1.149" #typical Baymax IP
 
 try:
     res = sys.argv[2]
@@ -41,30 +41,18 @@ except:
 r = sr.Recognizer()
 
 app = Flask(__name__)
-q = Queue.Queue()
-vid = VideoCamera(IP, res, fps)
-
-@app.route('/', methods = ['GET', 'POST'])
-def index():
-    if request.method == "POST":
-        dataZ = request.form['gyroZ']
-        dataY = request.form['gyroY']
-        gyro.moveHead(dataZ, dataY, IP)
-        video_feed()
-        return dataZ
-    else:
-        return render_template('index.html')
-
+vids = VideoCamera(IP, res, fps)
 
 def gen(camera):
-    try:
-        frame = camera.get_frame()
-        stringy = b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n'
-        q.put(stringy)
-        print('yes')
-    except:
-        print('no')
-    # yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+    #while True:
+    frame = camera.get_frame()
+    return frame
+    #return (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+
+
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 
 @app.route('/speech')
@@ -75,18 +63,17 @@ def tts():
 
 @app.route('/video_feed')
 def video_feed():
-    print('this')
-    # q = Queue.Queue()
-    gen(vid)
-    # t.start()
-    # t.join()
-    print('qsize' + str(q.qsize()))
-    que = q.get()
-    #q.task_done()
-    print('qsize' + str(q.qsize()))
-    return Response(que, mimetype='multipart/x-mixed-replace; boundary=frame')
-    # return Response(gen(VideoCamera(IP, res, fps)), mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response(gen(vids), mimetype='image/jpeg')
+    #return Response(gen(VideoCamera(IP, res, fps)), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+
+@app.route('/process_gyro', methods=['GET', 'POST'])
+def process_gyro():
+    dataZ = request.form['gyroZ']
+    dataY = request.form['gyroY']
+    gyro.moveHead(dataZ, dataY, IP)
+    return dataZ
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True,port=5003)
+    app.run(host='0.0.0.0', debug=True, port=5003)

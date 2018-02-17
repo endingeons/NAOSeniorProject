@@ -15,6 +15,12 @@
 
     <pre class="output"></pre>
 
+    <!--form for gyro values-->
+    <form id="myform1" action="/" method="post">
+      <input type ="hidden" name="gyroZ" id="gyroZ"/>
+      <input type ="hidden" name="gyroY" id="gyroY"/>
+    </form>
+
     <!--button for TTS python script-->
     <a href="{{ url_for('tts') }}">I want to speak!</a>
 
@@ -81,9 +87,21 @@
         output.innerHTML += "init z: " + Math.round(z_init) + "\n";
 
         document.getElementById("gyroZ").value = Math.round(z);
+        document.getElementById("gyroY").value = Math.round(y);
+      }
+
+      function repeat(){
+        $.ajax({
+          url: '/',
+          data: $('form').serialize(),
+          type: 'POST',
+          async: true
+        });
       }
 
       window.addEventListener('deviceorientation', handleOrientation);
+
+      setInterval(repeat,750);
     </script>
   </body>
 </html>

@@ -49,10 +49,7 @@ def index():
         dataZ = request.form['gyroZ']
         dataY = request.form['gyroY']
         gyro.moveHead(dataZ, dataY, IP)
-        video_feed()
-        return dataZ
-    else:
-        return render_template('index.html')
+    return render_template('index.html')
 
 def gen(camera):
     while True:
@@ -72,4 +69,4 @@ def video_feed():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True,port=5003)
+    app.run(host='0.0.0.0', debug=True, port=5003)

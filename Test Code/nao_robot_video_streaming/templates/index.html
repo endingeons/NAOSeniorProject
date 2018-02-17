@@ -9,14 +9,14 @@
   </head>
   <body>
     <div style="display: inline-block"> <!--streaming video-->
-      <img id="bg" style = "width: 49vw; height: auto;" src="{{ url_for('video_feed') }}">
-      <img id="bg" style = "width: 49vw; height: auto;" src="{{ url_for('video_feed') }}">
+      <img id="bg1" style = "width: 49vw; height: auto;" src="{{ url_for('video_feed') }}">
+      <img id="bg2" style = "width: 49vw; height: auto;" src="{{ url_for('video_feed') }}">
     </div>
 
     <pre class="output"></pre>
 
     <!--form for gyro values-->
-    <form id="myform" action="/" method="post">
+    <form id="myform" action="/process_gyro" method="post">
       <input type ="hidden" name="gyroZ" id="gyroZ"/>
       <input type ="hidden" name="gyroY" id="gyroY"/>
     </form>
@@ -90,18 +90,44 @@
         document.getElementById("gyroY").value = Math.round(y);
       }
 
-      function repeat(){
+      function postGyro(){
         $.ajax({
-          url: '/',
+          url: '/process_gyro',
           data: $('form').serialize(),
           type: 'POST',
           async: true
         });
+
+      }
+
+      function refreshImages(){
+        var image1 = document.getElementById("bg1");
+        if(image1.complete){
+          var new_image1 = new Image();
+          //set up the new image
+          new_image1.id = "bg1";
+          new_image1.src = image1.src;
+          // insert new image and remove old
+          image1.parentNode.insertBefore(new_image1,image1);
+          image1.parentNode.removeChild(image1);
+        }
+        var image2 = document.getElementById("bg2");
+        if(image2.complete){
+          var new_image2 = new Image();
+          //set up the new image
+          new_image2.id = "bg2";
+          new_image2.src = image2.src;
+          // insert new image and remove old
+          image2.parentNode.insertBefore(new_image2,image2);
+          image2.parentNode.removeChild(image2);
+        }
       }
 
       window.addEventListener('deviceorientation', handleOrientation);
 
-      setInterval(repeat,750);
+      setInterval(postGyro,750);
+      setInterval(refreshImages,600); // dont go any lower than this please, it break shit
+
     </script>
   </body>
 </html>
