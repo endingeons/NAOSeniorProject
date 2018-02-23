@@ -13,20 +13,19 @@
 # 1. Install Python dependencies: cv2, flask. (wish that pip install works like a charm)
 # 2. Run "python main.py".
 # 3. Navigate the browser to the local webpage.
-from flask import Flask, render_template, Response, request, jsonify
+from flask import Flask, render_template, Response, request
 from camera import VideoCamera
 import sys
-import gyro
-import speechComputer
 import threading
 import speech_recognition as sr
 from naoqi import ALProxy
 import Queue
+import speechTest
 
 try:
     IP = sys.argv[1]
 except:
-    IP = "192.168.1.149" #typical Baymax IP
+    IP = "192.168.1.149" #typical IP
 
 try:
     res = sys.argv[2]
@@ -41,13 +40,6 @@ except:
 r = sr.Recognizer()
 
 app = Flask(__name__)
-vids = VideoCamera(IP, res, fps)
-
-def gen(camera):
-    #while True:
-    frame = camera.get_frame()
-    #return frame
-    yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
 
 
 @app.route('/')
@@ -55,25 +47,22 @@ def index():
     return render_template('index.html')
 
 
+def gen(camera):
+    while True:
+        frame = camera.get_frame()
+        yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+
+
 @app.route('/speech')
 def tts():
-    speechComputer.recognize(IP)
+    speechTest.recognize(IP)
     return render_template('index.html')
 
 
 @app.route('/video_feed')
 def video_feed():
-    return Response(gen(vids), mimetype='multipart/x-mixed-replace; boundary=frame')
-    #return Response(gen(VideoCamera(IP, res, fps)), mimetype='multipart/x-mixed-replace; boundary=frame')
-
-
-@app.route('/process_gyro', methods=['GET', 'POST'])
-def process_gyro():
-    dataZ = request.form['gyroZ']
-    dataY = request.form['gyroY']
-    gyro.moveHead(dataZ, dataY, IP)
-    return dataZ
+    return Response(gen(VideoCamera(IP, res, fps)), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True, port=5003)
+    app.run(host='0.0.0.0', debug=True,port=5003)

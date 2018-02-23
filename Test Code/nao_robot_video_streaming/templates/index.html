@@ -25,13 +25,14 @@
     <a href="{{ url_for('tts') }}">I want to speak!</a>
 
     <script type="text/javascript">
+
       var output = document.querySelector('.output');
       var y_init = 0;
       var z_init = 0;
 
       function handleOrientation(event){
-        var y = event.gamma; // y axis motion in degrees in the range [-90,90], left to right motion?
-        var z = event.alpha; // z axis motion in degrees in the range [0,360], up to down motion?
+        var y = event.gamma; // y axis motion in degrees in the range [-90,90], up and down motion
+        var z = event.alpha; // z axis motion in degrees in the range [0,360], left and right motion
 
 
         if (z_init == 0)
@@ -97,7 +98,6 @@
           type: 'POST',
           async: true
         });
-
       }
 
       function refreshImages(){

@@ -17,7 +17,7 @@ from flask import Flask, render_template, Response, request, jsonify
 from camera import VideoCamera
 import sys
 import gyro
-import speechComputer
+import speechTest
 import threading
 import speech_recognition as sr
 from naoqi import ALProxy
@@ -41,39 +41,38 @@ except:
 r = sr.Recognizer()
 
 app = Flask(__name__)
-vids = VideoCamera(IP, res, fps)
+
+
+@app.route('/', methods = ['GET', 'POST'])
+def index():
+    while request.method == "POST":
+        data = request.form['gyroZ']
+        gyro.moveHead(data, IP)
+        print data
+        return render_template('index.html')
+    return render_template('index.html')
+
+#create gen for gyro?? but i don't think that would work
+# def gen(gy):
+#    while True:
+
 
 def gen(camera):
-    #while True:
-    frame = camera.get_frame()
-    #return frame
-    yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
-
-
-@app.route('/')
-def index():
-    return render_template('index.html')
+    while True:
+        frame = camera.get_frame()
+        yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
 
 
 @app.route('/speech')
 def tts():
-    speechComputer.recognize(IP)
+    speechTest.recognize(IP)
     return render_template('index.html')
 
 
 @app.route('/video_feed')
 def video_feed():
-    return Response(gen(vids), mimetype='multipart/x-mixed-replace; boundary=frame')
-    #return Response(gen(VideoCamera(IP, res, fps)), mimetype='multipart/x-mixed-replace; boundary=frame')
-
-
-@app.route('/process_gyro', methods=['GET', 'POST'])
-def process_gyro():
-    dataZ = request.form['gyroZ']
-    dataY = request.form['gyroY']
-    gyro.moveHead(dataZ, dataY, IP)
-    return dataZ
+    return Response(gen(VideoCamera(IP, res, fps)), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True, port=5003)
+    app.run(host='0.0.0.0', debug=True,port=5003)
