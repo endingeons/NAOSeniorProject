@@ -41,7 +41,6 @@ except:
 r = sr.Recognizer()
 
 app = Flask(__name__)
-vids = VideoCamera(IP, res, fps)
 
 def gen(camera):
     #while True:
@@ -54,11 +53,24 @@ def gen(camera):
 def index():
     return render_template('index.html')
 
+@app.route('/main', methods=['POST'])
+def main():
+    try:
+        global IP
+        IP = request.POST.get('enteredIP','')
+        print('IP: ' + IP)
+    except:
+        IP = '192.168.1.100'
+        print('def')
+    global vids
+    vids = VideoCamera(IP, res, fps)
+    return render_template('main.html')
+
 
 @app.route('/speech')
 def tts():
     speechComputer.recognize(IP)
-    return render_template('index.html')
+    return render_template('main.html')
 
 
 @app.route('/video_feed')
