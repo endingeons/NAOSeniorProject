@@ -24,23 +24,19 @@ from naoqi import ALProxy
 import Queue
 
 try:
-    IP = sys.argv[1]
-except:
-    IP = "192.168.1.149" #typical Baymax IP
-
-try:
-    res = sys.argv[2]
+    res = sys.argv[1]
 except:
     res = 1
 
 try:
-    fps = sys.argv[3]
+    fps = sys.argv[2]
 except:
     fps = 30
 
 r = sr.Recognizer()
 
 app = Flask(__name__)
+
 
 def gen(camera):
     #while True:
@@ -53,17 +49,19 @@ def gen(camera):
 def index():
     return render_template('index.html')
 
+
 @app.route('/main', methods=['POST'])
 def main():
-    try:
+    if request.method == 'POST':
         global IP
-        IP = request.POST.get('enteredIP','')
-        print('IP: ' + IP)
-    except:
-        IP = '192.168.1.100'
-        print('def')
-    global vids
-    vids = VideoCamera(IP, res, fps)
+        try:
+            IP = str(request.form.get('enteredIP'))
+            print('IP: ' + IP)
+        except:
+            IP = '192.168.1.100'
+            print('def')
+        global vids
+        vids = VideoCamera(IP, res, fps)
     return render_template('main.html')
 
 
