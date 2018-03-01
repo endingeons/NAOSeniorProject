@@ -102,24 +102,23 @@
 
       function refreshImages(){
         var image1 = document.getElementById("bg1");
-        if(image1.complete){
-          var new_image1 = new Image();
-          //set up the new image
-          new_image1.id = "bg1";
-          new_image1.src = image1.src;
-          // insert new image and remove old
-          image1.parentNode.insertBefore(new_image1,image1);
-          image1.parentNode.removeChild(image1);
-        }
         var image2 = document.getElementById("bg2");
-        if(image2.complete){
-          var new_image2 = new Image();
-          //set up the new image
-          new_image2.id = "bg2";
-          new_image2.src = image2.src;
-          // insert new image and remove old
-          image2.parentNode.insertBefore(new_image2,image2);
-          image2.parentNode.removeChild(image2);
+        if(image1.complete){
+          if(image2.complete){
+            var new_image1 = new Image();
+            //set up the new image
+            new_image1.id = "bg1";
+            new_image1.src = image1.src;
+            var new_image2 = new Image();
+            //set up the new image
+            new_image2.id = "bg2";
+            new_image2.src = image2.src;
+            // insert new image and remove old
+            image1.parentNode.insertBefore(new_image1,image1);
+            image2.parentNode.insertBefore(new_image2,image1);
+            //image1.parentNode.removeChild(image1);
+            //image2.parentNode.removeChild(image2);
+          }
         }
       }
 
