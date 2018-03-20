@@ -11,6 +11,10 @@ def keyPress(e):
         word = ''
     elif keyboard.is_pressed('space'):
         word = word + ' '
+    elif keyboard.is_pressed('backspace'):
+        word = word[:-1]
+    elif keyboard.is_pressed('left ctrl') or keyboard.is_pressed('right ctrl') or keyboard.is_pressed('left shift') or keyboard.is_pressed('right shift') or keyboard.is_pressed('alt'):
+        pass
     else:
         try:
             word = word + e.name
