@@ -6,7 +6,7 @@ import StringIO
 
 
 class VideoCamera(object):
-    def __init__(self, ip, res, fps=30):
+    def __init__(self, ip, res, fps):
         # Using OpenCV to capture from device 0. If you have trouble capturing
         # from a webcam, comment the line below out and use a video file
         # instead.
@@ -15,7 +15,7 @@ class VideoCamera(object):
         # If you decide to use video.mp4, you must have this file in the folder
         # as the main.py.
         # self.video = cv2.VideoCapture('video.mp4')
-        IP = ip  # Replace here with your NAOqi's IP address.
+        IP = str(ip)  # Replace here with your NAOqi's IP address.
         PORT = 9559
         self.camProxy = ALProxy("ALVideoDevice", IP, PORT)
         ####

@@ -17,37 +17,32 @@ from flask import Flask, render_template, Response, request, jsonify
 from camera import VideoCamera
 import sys
 import gyro
-import speechTest
+import speechComputer
 import threading
 import speech_recognition as sr
 from naoqi import ALProxy
 import Queue
 
 try:
-    IP = sys.argv[1]
-except:
-    IP = "192.168.1.149" #typical Baymax IP
-
-try:
-    res = sys.argv[2]
+    res = sys.argv[1]
 except:
     res = 1
 
 try:
-    fps = sys.argv[3]
+    fps = sys.argv[2]
 except:
     fps = 30
 
 r = sr.Recognizer()
 
 app = Flask(__name__)
-vids = VideoCamera(IP, res, fps)
+
 
 def gen(camera):
     #while True:
     frame = camera.get_frame()
-    return frame
-    #return (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+    #return frame
+    yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
 
 
 @app.route('/')
@@ -55,15 +50,30 @@ def index():
     return render_template('index.html')
 
 
+@app.route('/main', methods=['POST'])
+def main():
+    if request.method == 'POST':
+        global IP
+        try:
+            IP = str(request.form.get('enteredIP'))
+            print('IP: ' + IP)
+        except:
+            IP = '192.168.1.100'
+            print('def')
+        global vids
+        vids = VideoCamera(IP, res, fps)
+    return render_template('main.html')
+
+
 @app.route('/speech')
 def tts():
-    speechTest.recognize(IP)
-    return render_template('index.html')
+    speechComputer.recognize(IP)
+    return render_template('main.html')
 
 
 @app.route('/video_feed')
 def video_feed():
-    return Response(gen(vids), mimetype='image/jpeg')
+    return Response(gen(vids), mimetype='multipart/x-mixed-replace; boundary=frame')
     #return Response(gen(VideoCamera(IP, res, fps)), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 

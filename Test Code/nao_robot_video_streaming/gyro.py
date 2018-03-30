@@ -8,7 +8,7 @@ def moveHead(argZ, argY, ip):
     print(argZ)
     argYRad = int(argY) * 3.14 / 180
     argZRad = int(argZ) * 3.14 / 180
-    moProx = ALProxy("ALMotion", ip, 9559)
+    moProx = ALProxy("ALMotion", str(ip), 9559)
     moProx.setStiffnesses("Head", 1.0)
     names = ["HeadPitch", "HeadYaw"]
     times = [.5, .5]
