@@ -5,15 +5,22 @@
   <body>
     <h1>NAO Senior Project</h1>
 
-  <!--<source src= "{{ url_for('audio_feed') }}" type="audio/mpeg">-->
-  <!--<audio src="http://upload.wikimedia.org/wikipedia/commons/c/c8/Example.ogg" controls="controls" preload="auto">-->
-    <!--<i>Your browser does not support the audio element.</i>-->
-  <!--</audio>-->
 
-    <audio autoplay>
-    <sound src="{{ url_for('audio_feed') }}" type="audio/wav">
-    <i>Your browser does not support the audio element.</i>
-    </sound>
+   <audio controls id="audio1">
+        <source src="{{ url_for('audio_feed') }}" type="audio/x-wav;codec=pcm" autobuffer>
+        Your browser does not support the audio element.
     </audio>
+
+
+  <script type="text/javascript">
+    function callback() {
+        //var audio = new Audio('Flask.url_for('audio_feed', filename='audio_streaming_NAO.py')');
+        var audio = document.getElementById("audio1");
+        audio.load();
+        audio.play();
+    }
+   //setInterval(callback, 1000);
+   callback();
+  </script>
   </body>
 </html>
