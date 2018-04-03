@@ -17,16 +17,16 @@ from flask import Flask, render_template, Response, request, jsonify
 from camera import VideoCamera
 import sys
 import gyro
-import speechComputer
 import threading
 import speech_recognition as sr
 from naoqi import ALProxy
 import Queue
+import LegModule3
 
 try:
     res = sys.argv[1]
 except:
-    res = 1
+    res = '1'
 
 try:
     fps = sys.argv[2]
@@ -39,9 +39,7 @@ app = Flask(__name__)
 
 
 def gen(camera):
-    #while True:
     frame = camera.get_frame()
-    #return frame
     yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
 
 
@@ -62,19 +60,15 @@ def main():
             print('def')
         global vids
         vids = VideoCamera(IP, res, fps)
-    return render_template('main.html')
-
-
-@app.route('/speech')
-def tts():
-    speechComputer.recognize(IP)
+        legtalkthread = threading.Thread(target=LegModule3.legsAndTalk, args=(IP,))
+        legtalkthread.daemon = True
+        legtalkthread.start()
     return render_template('main.html')
 
 
 @app.route('/video_feed')
 def video_feed():
     return Response(gen(vids), mimetype='multipart/x-mixed-replace; boundary=frame')
-    #return Response(gen(VideoCamera(IP, res, fps)), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 @app.route('/process_gyro', methods=['GET', 'POST'])
