@@ -17,6 +17,7 @@ class VideoCamera(object):
         # self.video = cv2.VideoCapture('video.mp4')
         IP = str(ip)  # Replace here with your NAOqi's IP address.
         PORT = 9559
+        res = str(res)
         self.camProxy = ALProxy("ALVideoDevice", IP, PORT)
         ####
         # Register a Generic Video Module
@@ -34,7 +35,7 @@ class VideoCamera(object):
         elif res == '8':
             resolution = vision_definitions.kQQQQVGA  # 40 * 30
         else:
-            resolution = vision_definitions.kQQQVGA
+            resolution = vision_definitions.kQQVGA
 
         colorSpace = vision_definitions.kRGBColorSpace
 

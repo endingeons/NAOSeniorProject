@@ -12,6 +12,9 @@ def recognize(ip):
         audio = r.listen(source)
         print('Done!')
 
-    input = r.recognize_google(audio)
+    try:
+        input = r.recognize_google(audio)
+    except UnknownValueError:
+        input = 'I didnt catch that'
     print(input)
     tts.say(str(input))
