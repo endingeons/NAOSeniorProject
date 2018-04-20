@@ -1,6 +1,7 @@
 from naoqi import ALProxy
 import serial
 import speechComputer
+import requests
 
 # Movement is in meters, Rotation is in radians
 # Positive values are forward/left/c-clkwise
@@ -85,8 +86,12 @@ def legsAndTalk(ip):
 
                 elif data == "push":
                     print data
-                    speechComputer.recognize(NAO_IP)
-                    # tts.say("I talk nao")
+                    stop = speechComputer.recognize(NAO_IP)
+                    if stop == 1:
+                        posture.goToPosture("Crouch", 1.0)
+                        motion.setStiffnesses("Body", 0.0)
+                        requests.post("http://192.168.1.101:5003/main", data={'stopFlag': 1})
+                        break
 
     except KeyboardInterrupt:
         posture.goToPosture("Crouch", 1.0)

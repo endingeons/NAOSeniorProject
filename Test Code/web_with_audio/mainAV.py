@@ -65,8 +65,10 @@ def audio_feed():
     # We need this broker to be able to construct
     # NAOqi modules and subscribe to other modules
     # The broker must stay alive until the program exits
+    SoundReceiver.get_audio()
 
-    gen(SoundReceiver)
+    # gen(SoundReceiver)
+
     # return Response(gen(SoundReceiver),
     #                  mimetype='audio/wav')
 

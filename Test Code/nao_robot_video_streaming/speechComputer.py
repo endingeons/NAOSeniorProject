@@ -14,7 +14,13 @@ def recognize(ip):
 
     try:
         input = r.recognize_google(audio)
-    except UnknownValueError:
+    except sr.UnknownValueError:
         input = 'I didnt catch that'
-    print(input)
-    tts.say(str(input))
+    if input == 'deactivate system':
+        print(input)
+        tts.say(str(input))
+        return 1
+    else:
+        print(input)
+        tts.say(str(input))
+        return 0

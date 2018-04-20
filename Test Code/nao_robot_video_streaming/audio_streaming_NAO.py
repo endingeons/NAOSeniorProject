@@ -40,15 +40,15 @@ class SoundReceiverModule(naoqi.ALModule):
             self.audioDeque = deque([])
             self.audioDeque_receive = deque([])
             # self.p = pyaudio.PyAudio()
-            self.thread1 = threading.Thread(target= self.play_audio, args=[])
-            # self.thread2 = threading.Thread(target= self.play_audio, args=[])
-            # Setting up stream for audio output
-            # fs = self.nSampleRate  # sampling rate, Hz, must be integer
-            # for paFloat32 sample values must be in range [-1.0, 1.0]
-            # self.stream = self.p.open(format=pyaudio.paFloat32,
-            #                      channels=1,
-            #                      rate=fs,
-            #                      output=True)
+            self.thread1 = None # = threading.Thread(target= self.play_audio, args=[])
+            # # self.thread2 = threading.Thread(target= self.play_audio, args=[])
+            # # Setting up stream for audio output
+            # # fs = self.nSampleRate  # sampling rate, Hz, must be integer
+            # # for paFloat32 sample values must be in range [-1.0, 1.0]
+            # # self.stream = self.p.open(format=pyaudio.paFloat32,
+            # #                      channels=1,
+            # #                      rate=fs,
+            # #                      output=True)
 
         except BaseException, err:
             print( "ERR: abcdk.naoqitools.SoundReceiverModule: loading error: %s" % str(err) );
@@ -147,21 +147,27 @@ class SoundReceiverModule(naoqi.ALModule):
         y = lfilter(b, a, data)
         return y
 
-    def play_audio(self):
+    def play_audio(self, stop):
         volume = 0.9
         while True:
-            while(len(self.audioDeque_receive) != 0):
-                    samples = self.audioDeque_receive.popleft()
-                    sd.play(samples, self.nSampleRate, blocking= False)
-                    # self.stream.write(volume * samples)
+            while((len(self.audioDeque_receive) != 0) and (not stop.is_set())):
+                samples = self.audioDeque_receive.popleft()
+                sd.play(samples, self.nSampleRate, blocking= False)
+                # self.stream.write(volume * samples)
+            if stop.is_set():
+                print('stop play 2')
+                break
     # play_audio - end
 
-    def get_audio(self):
+    def get_audio(self, stop):
         print("Playing:", file=sys.stderr)
+        self.thread1 = threading.Thread(target=self.play_audio, args=(stop,))
+        self.thread1.daemon = True
         self.thread1.start()
+
         #self.thread2.start()
         # time.sleep(5)
-        while(True):
+        while(not stop.is_set()):
             if(len(self.audioDeque) > 11):
                 # print(self.channelQ.qsize())
                 # print("", file=sys.stderr)
@@ -237,6 +243,8 @@ class SoundReceiverModule(naoqi.ALModule):
         # # wav = buf.getvalue()
         # wav_file.close()
         # return bytestream
+        print('stop play 1')
+        return
 
     def version( self ):
         return "0.6";

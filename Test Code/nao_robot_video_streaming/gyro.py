@@ -2,10 +2,10 @@ from naoqi import ALProxy
 import almath
 
 def moveHead(argZ, argY, ip):
-    print("Y: ")
-    print(argY)
-    print("Z: ")
-    print(argZ)
+    # print("Y: ")
+    # print(argY)
+    # print("Z: ")
+    # print(argZ)
     argYRad = int(argY) * 3.14 / 180
     argZRad = int(argZ) * 3.14 / 180
     moProx = ALProxy("ALMotion", str(ip), 9559)
