@@ -49,10 +49,21 @@ def gen(camera):
 def index():
     return render_template('index.html')
 
+@app.route('/start', methods=['POST'])
+def start():
+    global IP
+    try:
+        IP = str(request.form.get('enteredIP'))
+        print('IP: ' + IP)
+    except:
+        IP = '192.168.1.149'
+        print('def')
+    return render_template('startpage.html')
 
-@app.route('/main', methods=['POST'])
+
+@app.route('/main', methods=['GET'])
 def main():
-    if request.method == 'POST':
+    if request.method == 'GET':
         global stopFlag
         try:
             if not stopFlag.is_set():
@@ -69,19 +80,10 @@ def main():
                 print('stop flag is: ' + str(stopFlag.is_set()))
                 return redirect(url_for('index'))
                 # return render_template('index.html')
-                # return render_template('test.html')
 
         except Exception, e:
             print(e)
             print('something')
-
-        global IP
-        try:
-            IP = str(request.form.get('enteredIP'))
-            print('IP: ' + IP)
-        except:
-            IP = '192.168.1.149'
-            print('def')
 
         global vids
         vids = VideoCamera(IP, res, fps)
