@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+      <title>NAO Senior Project</title>
+      <link rel="stylesheet" type="text/css" href="{{ url_for('main', filename='style/style.css')}}">
+      <link href="https://cdn.mdn.mozilla.net/static/build/styles/samples.37902ba3b7fe.css" rel="stylesheet" type="text/css">
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    </head>
+    <body>
+      <div style="display: inline-block"> <!--streaming video-->
+        <a href="{{ url_for('index') }}">
+          <img id="bg1" style = "width: 49vw; height: auto;" src="{{ url_for('video_feed') }}">
+          <img id="bg2" style = "width: 49vw; height: auto;" src="{{ url_for('video_feed') }}">
+        </a>
+      </div>
+
+      <pre class="output"></pre>
+
+      <!--form for gyro values-->
+      <form id="myform" action="/process_gyro" method="post">
+        <input type ="hidden" name="gyroZ" id="gyroZ"/>
+        <input type ="hidden" name="gyroY" id="gyroY"/>
+      </form>
+
+      <script type="text/javascript">
+
+        //var output = document.querySelector('.output');
+        var y_init = 0;
+        var z_init = 0;
+
+        function handleOrientation(event){
+          var y = event.gamma; // y axis motion in degrees in the range [-90,90], up and down motion
+          var z = event.alpha; // z axis motion in degrees in the range [0,360], left and right motion
+
+
+          if (z_init == 0){
+            z_init = z; // we will need to adjust z so the start is 0 (NAO start position is 0)
+          }
+
+          if (z > z_init){
+            z = z - z_init;
+          }
+          else if (z < z_init){
+            z = 360 - z_init + z;
+          }
+          if (z > 180){
+            z = z - 360;
+          }
+
+          // adjusting to make the y axis 0 when the phone is in the normal start position,
+          // negative when down, and positive when up to match the NAO
+          if (y > 0){
+            y = y - 90;
+          }
+          else if (y < 0){
+            y = y + 90;
+          }
+
+          if (y_init == 0){
+            y_init = y;
+          }
+
+          if ((y_init < 0 && y > 0) || (y_init > 0 && y < 0)){
+            if (z < 0){
+              z = z + 180;
+            }
+            else if (z > 0){
+              z = z - 180;
+            }
+          }
+
+          //we can't really use x since the NAOs only have two degrees of freedom for their heads
+          //output.innerHTML = "y: " + Math.round(y) + "\n";
+          //output.innerHTML += "z: " + Math.round(z) + "\n";
+          //output.innerHTML += "init y: " + Math.round(y_init) + "\n";
+          //output.innerHTML += "init z: " + Math.round(z_init) + "\n";
+
+          document.getElementById("gyroZ").value = Math.round(z);
+          document.getElementById("gyroY").value = Math.round(y);
+        }
+
+        function postGyro(){
+          $.ajax({url: '/process_gyro', data: $('form').serialize(), type: 'POST', async: true});
+        }
+
+        function refreshImages(){
+          var image1 = document.getElementById("bg1");
+          var image2 = document.getElementById("bg2");
+          //set up the new image
+          var new_image1 = new Image();
+          new_image1.id = "bg1";
+          new_image1.src = image1.src;
+          //new_image1.width = (window.innerWidth*49/100);
+          //set up the new image
+          var new_image2 = new Image();
+          new_image2.id = "bg2";
+          new_image2.src = image2.src;
+          //new_image2.width = (window.innerWidth*49/100);
+          // insert new image and remove old
+          image1.parentNode.insertBefore(new_image1,image1);
+          image2.parentNode.insertBefore(new_image2,image1);
+          new_image1.onload = function(){image1.parentNode.removeChild(image1);};
+          new_image2.onload = function(){image2.parentNode.removeChild(image2);};
+        }
+
+        window.addEventListener('deviceorientation', handleOrientation);
+
+        setInterval(postGyro,750);
+        setInterval(refreshImages,750); // dont go any lower than this please, it break shit
+
+      </script>
+    </body>
+</html>
