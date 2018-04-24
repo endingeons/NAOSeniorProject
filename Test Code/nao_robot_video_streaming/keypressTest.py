@@ -33,7 +33,7 @@ def keyPress(e):
         moProx.setStiffnesses("Head", 0.0)
 
 
-moProx = ALProxy("ALMotion", '192.168.1.149', 9559)
+moProx = ALProxy("ALMotion", '192.168.1.100', 9559)
 moProx.setStiffnesses("Head", 1)
 
 keyboard.hook(keyPress)

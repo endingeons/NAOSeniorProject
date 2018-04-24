@@ -4,12 +4,8 @@
     <head>
         <title>NAO Senior Project</title>
     </head>
-    <body>
-      <a href="{{ url_for('main') }}">
-        <div style="display: inline-block; text-align: center"> <!--displays start page image twice so it can be seen with VR headset on-->
-          <img style = "width: 48.9vw; height: auto;" src="https://i.imgur.com/2HGkvww.jpg">
-          <img style = "width: 48.9vw; height: auto;" src="https://i.imgur.com/2HGkvww.jpg">
-        </div>
-      </a>
-     </body>
+    <form action="/main" method="POST">
+        <input type="image" src="https://i.imgur.com/2HGkvww.jpg" style="width: 48.9vw; height: auto;">
+        <input type="image" src="https://i.imgur.com/2HGkvww.jpg" style="width: 48.9vw; height: auto;">
+    </form>
 </html>

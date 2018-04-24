@@ -61,9 +61,9 @@ def start():
     return render_template('startpage.html')
 
 
-@app.route('/main', methods=['GET'])
+@app.route('/main', methods=['POST'])
 def main():
-    if request.method == 'GET':
+    if request.method == 'POST':
         global stopFlag
         try:
             if not stopFlag.is_set():

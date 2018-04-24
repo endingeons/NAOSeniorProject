@@ -25,7 +25,7 @@ import Queue
 try:
     IP = sys.argv[1]
 except:
-    IP = "192.168.1.149" #typical Baymax IP
+    IP = "192.168.1.100" #typical Baymax IP
 
 try:
     res = sys.argv[2]
