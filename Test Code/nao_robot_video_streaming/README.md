@@ -8,5 +8,5 @@
 2. Navigate into folder directory using  any ssh terminal (ad. putty) and run "python main.py".
 3. Navigate the browser to the NAO webpage.
 
-###Take a look this
+### Take a look this
 https://www.youtube.com/watch?v=Jv-BcFOcS08
