@@ -47,6 +47,13 @@ def gen(camera):
 
 @app.route('/', methods=['POST', 'GET'])
 def index():
+    global stopFlag
+    try:
+        if stopFlag.is_set():
+            print('stop flag exists')
+            stopFlag.clear()
+    except NameError:
+        print('no stopflag yet')
     return render_template('index.html')
 
 @app.route('/start', methods=['POST'])
@@ -78,7 +85,8 @@ def main():
                 print('stop')
                 stopFlag.set()
                 print('stop flag is: ' + str(stopFlag.is_set()))
-                return redirect(url_for('index'))
+                return render_template('main.html')
+                # redirect(url_for('index'))
                 # return render_template('index.html')
 
         except Exception, e:
@@ -103,7 +111,11 @@ def main():
                                   9559)  # parent broker port
 
         global SoundReceiver
-        SoundReceiver = SoundReceiverModule("SoundReceiver", IP, 9559)
+        try:
+            SoundReceiver = SoundReceiverModule("SoundReceiver", IP, 9559)
+        except Exception, e:
+            print(e)
+            pass
         SoundReceiver.start()
         soundThread = threading.Thread(target=SoundReceiver.get_audio, args=(stopFlag,))
         soundThread.daemon = True

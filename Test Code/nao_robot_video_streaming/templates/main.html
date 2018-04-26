@@ -7,11 +7,11 @@
       <link href="https://cdn.mdn.mozilla.net/static/build/styles/samples.37902ba3b7fe.css" rel="stylesheet" type="text/css">
       <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     </head>
-    <body>
-      <div style="display: inline-block; text-align: center"> <!--streaming video-->
+    <body style="background-color:#17202A">
+      <div style="display: inline-block;"> <!--streaming video-->
         <a href="{{ url_for('index') }}">
-          <img id="bg1" style = "width: 49.5vw; height: auto;" src="{{ url_for('video_feed') }}">
-          <img id="bg2" style = "width: 49.5vw; height: auto;" src="{{ url_for('video_feed') }}">
+          <img id="bg1" style = "width: 49.5vw; height: auto; position: absolute;" src="{{ url_for('video_feed') }}">
+          <img id="bg2" style = "width: 49.5vw; height: auto; position: absolute; left: 49.5vw;" src="{{ url_for('video_feed') }}">
         </a>
       </div>
 
@@ -90,12 +90,12 @@
           //set up the new image
           var new_image1 = new Image();
           new_image1.id = "bg1";
-          new_image1.style = "width: 49.5vw; height: auto;"
+          new_image1.style = "width: 49.5vw; height: auto; position: absolute;"
           new_image1.src = image1.src;
           //set up the new image
           var new_image2 = new Image();
           new_image2.id = "bg2";
-          new_image2.style = "width: 49.5vw; height: auto;"
+          new_image2.style = "width: 49.5vw; height: auto; position: absolute; left: 49.5vw;"
           new_image2.src = image2.src;
           // insert new image and remove old
           image1.parentNode.insertBefore(new_image1,image1);
