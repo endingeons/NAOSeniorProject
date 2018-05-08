@@ -73,20 +73,23 @@ def legsAndTalk(ip):
                     motion.post.stopMove()
                     # tts.say("Stop")
 
-                # Rotate 45 degrees
+                # Rotate 45 degrees clockwise
                 elif data == "c":
                     print data
                     motion.post.moveTo(0, 0, -0.79)
                     # tts.say("Clockwise")
 
+                # Rotate 45 degrees counter clockwise
                 elif data == "k":
                     print data
                     motion.post.moveTo(0, 0, 0.79)
                     # tts.say("Counter Clockwise")
 
+                # Begin speech recognition on button press
                 elif data == "push":
                     print data
                     stop = speechComputer.recognize(NAO_IP)
+                    # if the speech recognition returns a stop flag, pass flag to main site using a post request
                     if stop == 1:
                         posture.goToPosture("Crouch", 1.0)
                         motion.setStiffnesses("Body", 0.0)

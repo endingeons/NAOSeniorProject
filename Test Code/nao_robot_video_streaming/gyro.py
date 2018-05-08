@@ -1,14 +1,10 @@
 from naoqi import ALProxy
-import almath
+
 
 def moveHead(argZ, argY, ip):
-    # print("Y: ")
-    # print(argY)
-    # print("Z: ")
-    # print(argZ)
     argYRad = int(argY) * 3.14 / 180
     argZRad = int(argZ) * 3.14 / 180
-    moProx = ALProxy("ALMotion", str(ip), 9559)
+    moProx = ALProxy("ALMotion", str(ip), 9559)  # creates motion proxy to nao
     moProx.setStiffnesses("Head", 1.0)
     names = ["HeadPitch", "HeadYaw"]
     times = [.5, .5]
@@ -16,7 +12,7 @@ def moveHead(argZ, argY, ip):
     # normal case
     if (abs(int(argY)) < 25) and (abs(int(argZ)) < 90):
         angles = [argYRad, argZRad]
-        moProx.angleInterpolation(names, angles, times, True)
+        moProx.angleInterpolation(names, angles, times, True)  # True specifies that the angles are absolute, not relative to current position
 
     # if y is outside of bounds
     elif (abs(int(argY)) > 25) and (abs(int(argZ)) < 90):

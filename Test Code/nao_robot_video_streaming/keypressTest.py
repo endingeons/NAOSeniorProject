@@ -1,7 +1,6 @@
 import keyboard
-import time
 from naoqi import ALProxy
-import pyautogui, sys
+
 
 def keyPress(e):
     if keyboard.is_pressed('up'):
@@ -33,10 +32,13 @@ def keyPress(e):
         moProx.setStiffnesses("Head", 0.0)
 
 
-moProx = ALProxy("ALMotion", '192.168.1.100', 9559)
+moProx = ALProxy("ALMotion", '192.168.1.100', 9559)  # sets up a proxy to robot at specified ip
 moProx.setStiffnesses("Head", 1)
 
+# binds function keyPress to keyboard events
 keyboard.hook(keyPress)
+
+# waits indefinitely for keyboard presses and control head based on arrow keys
 keyboard.wait()
 
 
