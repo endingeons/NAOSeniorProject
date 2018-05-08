@@ -1,8 +1,24 @@
-## Visual and Aural Telepresence via NAO
+# Visual and Aural Telepresence via NAO #
+A 2017-2018 TCNJ senior project in which students attempt to create a remote presence using a NAO Robot with a headset made from a gaming headset and Google Cardboard. Functionality will include video and audio streaming from the robot to the user, and the user will have to ability to turn their head to control the robot's head as well as speak through the robot. This headset will be combined with an arm controller to move the rest of the robot's body.
 
 
+## Programming Languages ##
+- Python and Python Packages:
+	- NAOqi
+	- SoundFile
+	- NumPY
+	- Flask
+	- thread
+- Arudino C
+- HTML5 
+- JavaScript
 
-### Usage
+## System Requirements ##
+1. Python 2.7.x
+2. NAOqi 2.4.x 
+
+
+## Usage ##
 1. Install Python dependencies: collections, cv2, flask, keyboard, naoqi, numpy, os, PIL, pyaudio, Queue, requests, scipy.signal, serial, sounddevice, speech_recognition, StringIO, sys, threading, time, vision_definitions
 2. Connect headset (or speakers and mic) and arm controller.
 3. Turn on a nao robot and note its ip.
@@ -14,7 +30,7 @@
 
 
 
-### Files and Descriptions (and dependencies)
+## Files and Descriptions (and dependencies) ##
 
 audio_streaming_NAO.py: Processes audio from a nao robot using SoundReceiverModule class. Once the start function is called, everything will be initialized and the sound will begin to play.
 (sys, naoqi, sounddevice, numpy, Queue, pyaudio, threading, collections, scipy.signal)
@@ -48,5 +64,5 @@ threadtest.py and threadTest2.py: Used to test ending threads in different scrip
 
 
 
-###Take a look this
+## Take a look this ##
 https://www.youtube.com/watch?v=Jv-BcFOcS08
